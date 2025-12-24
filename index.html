@@ -1385,24 +1385,33 @@ async function sendMessage() {
         }
 
         const result = await response.json();
-        
+
         const responseText = result.response ? result.response.trim() : '';
-        const fileData = result.file_data || result.data;
-        const fileType = result.file_type || result.type;
         const fileUrl = result.file_url;
+        let fileData = result.file_data || result.data;
+        let fileType = result.file_type || result.type;
+
+        // Поддержка нового формата от G3unit (result.image — data:image/gif;base64,...)
+        if (result.image && result.source === "IMAGE_GENERATION") {
+            fileData = result.image.replace(/^data:image\/(png|gif|jpeg);base64,/, '');
+            fileType = result.image.includes('gif') ? 'gif_data' : 'image_data';
+        }
 
         if (responseText) {
             if (fileUrl) {
-                addMessage('vivi', responseText, fileType, fileUrl, result.filename);
+                addMessage('vivi', responseText, fileType || 'uploaded_image_url', fileUrl, result.filename);
             } else if (fileData) {
-                addMessage('vivi', responseText, fileType, fileData, result.filename);
+                addMessage('vivi', responseText, fileType || 'gif_data', fileData, result.filename);
             } else {
                 addMessage('vivi', responseText, 'text');
             }
         } else if (fileUrl) {
-            addMessage('vivi', null, fileType, fileUrl, result.filename);
+            addMessage('vivi', null, fileType || 'uploaded_image_url', fileUrl, result.filename);
+        } else if (fileData) {
+            // Случай, когда есть только картинка без текста (редко, но на всякий)
+            addMessage('vivi', "Я сгенерировала изображение для тебя! 😊", fileType || 'gif_data', fileData, result.filename);
         } else {
-            addMessage('vivi', "Извините, я не смогла сгенерировать ответ. Попробуйте еще раз. ", 'text');
+            addMessage('vivi', "Извините, я не смогла сгенерировать ответ. Попробуйте еще раз.", 'text');
         }
 
         chatHistoryArray.push({ role: "vivi", content: responseText });
