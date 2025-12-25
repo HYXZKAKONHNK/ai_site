@@ -799,8 +799,14 @@ function showMainInterface() {
     userInfoText.textContent = `👤 ${username}`;
     
     // Проверяем, является ли пользователь администратором техподдержки
-    if (username === 'Privet_53') {
+    if (username === 'Privet53') {
         userInfoText.innerHTML += '<span class="support-badge">ADMIN</span>';
+    }
+    if (username == 'ERKEBULAN') {
+        userInfoText.innerHTML += '<span class="support-badge">ADMIN 2</span>';
+    }
+    if (username == 'ДИДИБЛАД') {
+        userInfoText.innerHTML += '<span class="support-badge">ADMIN 3</span>';
     }
 }
 
