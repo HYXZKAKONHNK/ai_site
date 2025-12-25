@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Виви (V4.5unit) - Ваш ИИ Компаньон</title>
+    <title>Виви - ИИ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -20,6 +20,35 @@
             box-sizing: border-box;
             overflow: hidden;
         }
+
+        #snow-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Чтобы снег не мешал нажимать на кнопки */
+            z-index: 9999; /* Поверх всех элементов */
+            overflow: hidden;
+        }
+
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: white;
+            user-select: none;
+            cursor: default;
+            /* Мягкое свечение для снежинок */
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+            will-change: transform;
+            animation: fall linear forwards;
+    }
+
+        @keyframes fall {
+        to {
+        transform: translateY(110vh) rotate(360deg);
+        }
+    }
         
         .sidebar {
             width: 380px;
@@ -491,6 +520,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div id="snow-container"></div>
     <!-- Модальное окно авторизации -->
     <div id="auth-modal" class="modal">
         <div class="modal-content">
@@ -558,7 +588,7 @@
 
             <div class="chat-history" id="chat-history">
                 <div class="message-wrapper vivi-message-wrapper">
-                    <div class="message-bubble vivi-message">Привет! Я Виви, ваш ИИ-компаньон. Чем могу помочь? 😊</div>
+                    <div class="message-bubble vivi-message">Привет! Я Виви, ваш ИИ-компаньон. Чем могу помочь? Кстати, скоро новый год! Поздравляю тебя! 🥳😊</div>
                 </div>
             </div>
 
@@ -959,7 +989,7 @@ function createNewChat() {
     
     currentChatId = generateChatId();
     chatHistoryArray = [
-        { role: "vivi", content: "Привет! Я Виви, ваш ИИ-компаньон. Чем могу помочь? 😊" }
+        { role: "vivi", content: "Привет! Я Виви, ваш ИИ-компаньон. Чем могу помочь? Кстати, скоро новый год! Поздравляю тебя! 🥳😊" }
     ];
     allChats[currentChatId] = {
         messages: [...chatHistoryArray],
@@ -971,7 +1001,7 @@ function createNewChat() {
     
     chatHistory.innerHTML = '';
     userInput.value = '';
-    addMessage('vivi', "Привет! Я Виви, ваш ИИ-компаньон. Чем могу помочь? 😊");
+    addMessage('vivi', "Привет! Я Виви, ваш ИИ-компаньон. Чем могу помочь? Кстати, скоро новый год! Поздравляю тебя! 🥳😊");
     
     saveChatsToLocalStorage();
     renderChatList();
@@ -1083,6 +1113,49 @@ function pinMessage(messageId) {
     renderPinned();
     renderChatList();
 }
+
+function createSnowflake() {
+    const container = document.getElementById('snow-container');
+    if (!container) return;
+
+    const snowflake = document.createElement('div');
+    
+    // Выбираем случайный символ снежинки
+    const icons = ['❄', '❅', '❆', '•'];
+    snowflake.innerText = icons[Math.floor(Math.random() * icons.length)];
+    snowflake.classList.add('snowflake');
+
+    // Рандомные параметры для естественности
+    const startX = Math.random() * window.innerWidth;
+    const size = (Math.random() * 10 + 10) + 'px'; // Размер от 10 до 20px
+    const duration = (Math.random() * 3 + 4) + 's'; // Скорость падения от 4 до 7 сек
+    const opacity = Math.random() * 0.7 + 0.3; // Прозрачность
+
+    // Применяем стили
+    snowflake.style.left = startX + 'px';
+    snowflake.style.fontSize = size;
+    snowflake.style.animationDuration = duration;
+    snowflake.style.opacity = opacity;
+
+    container.appendChild(snowflake);
+
+    // Удаляем элемент после завершения анимации, чтобы не перегружать память
+    setTimeout(() => {
+      snowflake.remove();
+    }, parseFloat(duration) * 1000);
+  }
+
+  // Запускаем цикл создания снежинок
+  // 150ms — оптимальный интервал для густого, но легкого снега
+  setInterval(createSnowflake, 150);
+
+  // Обработка изменения размера окна, чтобы снег всегда был по всей ширине
+  window.addEventListener('resize', () => {
+    const container = document.getElementById('snow-container');
+    if (container) {
+      // Можно добавить логику очистки при резком ресайзе, если нужно
+    }
+});
 
 function renderPinned() {
     const pinnedList = document.getElementById('pinned-list');
